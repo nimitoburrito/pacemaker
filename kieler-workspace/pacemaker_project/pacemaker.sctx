@@ -1,0 +1,76 @@
+#resource "timing.h"
+#hostcode-c "#include \"timing.h\""
+#hostcode-c "#include <stdio.h>"
+@ClocksUseSD
+scchart Pacemaker{
+  
+  host "int" AVI = `AVI_VALUE`
+  host "int" AEI = `AEI_VALUE`
+  host "int" PVARP = `PVARP_VALUE`
+  host "int" VRP = `VRP_VALUE`
+  host "int" LRI = `LRI_VALUE`
+  host "int" URI = `URI_VALUE`
+  
+  input signal AS, VS
+  output signal AP, VP
+  
+  initial state top {
+    signal iAP, iVP, PVARP_timeout, VRP_timeout, URI_timeout
+  
+    region LRI {
+      clock x = 0
+      initial state idle
+      if VS || iVP do x = 0 go to active
+      state active
+        if (VS || iVP) do x = 0 go to active
+        if x >= LRI && !(VS || iVP) do iVP; VP; x = 0 go to active 
+    }
+    
+    region URI {
+      clock x = 0
+      initial state idle
+      if VS || iVP do x = 0 go to active
+      state active
+      if !(x >= URI) do URI_timeout go to active
+      if x >= URI go to idle 
+    }
+    
+    region PVARP {
+      clock x = 0
+      initial state idle
+      if VS || iVP do x = 0 go to active
+      state active
+        if !(x >= PVARP) do PVARP_timeout go to active
+          if x >= PVARP go to idle
+  }
+  
+    region VRP {
+      clock x = 0
+      initial state idle
+      if VS || iVP do x = 0 go to active
+      state active
+        if !(x >= VRP) do VRP_timeout go to active
+        if x >= VRP go to idle
+  }
+    
+     region AVI {
+      clock x = 0
+      initial state idle
+      if (AS || iAP) && !PVARP_timeout do x = 0 go to active
+      state active
+        if VS go to idle
+        if x >= AVI && URI_timeout  go to active
+        if x >= AVI && !URI_timeout do iVP; VP go to idle 
+  }
+  
+      region AEI {
+      clock x = 0
+      initial state idle
+      if (VS || iVP) && !VRP_timeout do x = 0 go to active
+      state active
+        if AS go to idle
+        if x >= AEI do iAP; AP go to idle
+  }
+  
+  }
+}
