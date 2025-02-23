@@ -1,0 +1,18 @@
+13:30:37 **** Incremental Build of configuration Nios II for project pacemaker ****
+make all 
+Info: Building C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/
+C:/intelFPGA_lite/18.1/nios2eds/bin/gnu/H-x86_64-mingw32/bin/make --no-print-directory -C C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/
+[BSP build complete]
+Info: Compiling main.c to obj/default/main.o
+nios2-elf-gcc -xc -MP -MMD -c -IC:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp//HAL/inc -IC:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/ -IC:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp//drivers/inc  -pipe -D__hal__ -DALT_NO_INSTRUCTION_EMULATION -DALT_SINGLE_THREADED    -O0 -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx -mgpopt=global  -o obj/default/main.o main.c
+Info: Linking pacemaker.elf
+nios2-elf-g++  -T'C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp//linker.x' -msys-crt0='C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp//obj/HAL/src/crt0.o' -msys-lib=hal_bsp -LC:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/   -Wl,-Map=pacemaker.map   -O0 -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx -mgpopt=global  -o pacemaker.elf obj/default/main.o obj/default/sccharts.o -lm -msys-lib=m
+nios2-elf-insert pacemaker.elf --thread_model hal --cpu_name cpu --qsys true --simulation_enabled false --id 0 --sidp 0x0 --timestamp 1739053853 --stderr_dev jtag_uart --stdin_dev jtag_uart --stdout_dev jtag_uart --sopc_system_name nios2_system --quartus_project_dir "c:/Users/Nimit/Desktop/COMPSYS303/Lab1" --jdi C:/Users/Nimit/Desktop/COMPSYS303/Lab1//output_files/lab1.jdi --sopcinfo C:/Users/Nimit/Desktop/COMPSYS303/Lab1/nios2_system.sopcinfo
+Info: (pacemaker.elf) 105 KBytes program size (code + initialized data).
+Info:                 8079 KBytes free for stack + heap.
+Info: Creating pacemaker.objdump
+nios2-elf-objdump --disassemble --syms --all-header --source pacemaker.elf >pacemaker.objdump
+[pacemaker build complete]
+
+13:30:39 Build Finished (took 1s.897ms)
+

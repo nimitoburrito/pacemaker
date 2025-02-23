@@ -1,0 +1,34 @@
+#include <system.h>
+#include <stdint.h>
+#include <altera_avalon_pio_regs.h>
+#include <stdio.h>
+#include "sccharts.h"
+#include <stdio.h>
+
+int main() {
+    // Create the struct
+    TickData data;
+
+    // Initialize
+    reset(&data);
+
+    int prevAP = -1, prevVP = -1;
+    while (1) {
+        data.AS = !(IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & 0b0010);
+        data.VS = !(IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & 0b0001);
+
+        tick(&data);
+
+        if (data.AP != prevAP || data.VP != prevVP) {
+            printf("State change detected: AS: %d, VS: %d -> AP: %d, VP: %d\n", data.AS, data.VS, data.AP, data.VP);
+            prevAP = data.AP;
+            prevVP = data.VP;
+        }
+
+        uint32_t all_leds = (data.AP ? 0xFFFFF : 0x00000) | (data.VP ? 0xFFFFF : 0x00000);
+        IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, all_leds);
+    }
+
+
+    return 0;
+}

@@ -1,0 +1,32 @@
+#include <system.h>
+#include <stdint.h>
+#include <altera_avalon_pio_regs.h>
+#include <stdio.h>
+#include "sccharts.h"
+
+int main() {
+    // Create the struct
+    TickData data;
+
+    // Initialize
+    reset(&data);
+
+    while (1) {
+        // Fetch button inputs (active low, so invert the bits)
+        data.AS = !(IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & 0b0010); // KEY1
+        data.VS = !(IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & 0b0001); // KEY0
+
+        // Perform a tick
+        tick(&data);
+
+        uint32_t led_output = (data.AP ? 0xFF : 0x00) | (data.VP ? 0xFF00 : 0x0000);
+
+        // Output AP and VP to Red LEDs
+        IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, led_output);
+
+        // Print the state to console
+        printf("AS: %d, VS: %d, AP: %d, VP: %d\n", data.AS, data.VS, data.AP, data.VP);
+    }
+
+    return 0;
+}
