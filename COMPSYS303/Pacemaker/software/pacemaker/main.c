@@ -73,23 +73,6 @@ int main() {
 
         tick(&data);
 
-
-        if (data.VP) {
-            IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, 0x01);
-        }
-        else {
-            IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
-        }
-
-
-        if (data.AP) {
-            IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, 0x04);
-        }
-
-        else {
-            IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
-        }
-
         // LED control with visibility extension
         uint32_t led_output = 0x00;
         if (data.VP) {
@@ -103,19 +86,11 @@ int main() {
         // Short delay to make LED flashes visible
         for (volatile int i = 0; i < 100000; i++);
 
-        // Reset pacing signals AFTER LEDs are visible
-//    	        data.VP = 0;
-//    	        data.AP = 0;
+        // Reset leds
         IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
-
-
 
         // Print the state to console
         printf("AS: %d, VS: %d, AP: %d, VP: %d\n", data.AS, data.VS, data.AP, data.VP);
-        // printf("AS: %d, VS: %d, AP: %d, VP: %d\n", data.AS, data.VS, AP_pulse, data.VP);
-
-
-
     }
 
     return 0;
