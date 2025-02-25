@@ -2,11 +2,11 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>19/02/2025 6:51:35 PM</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1739944295246</BspGeneratedUnixTimeStamp>
-        <BspGeneratedLocation>C:\Users\Nimit\Desktop\COMPSYS303\Pacemaker\software\pacemaker_bsp</BspGeneratedLocation>
+        <BspGeneratedTimeStamp>25/02/2025 7:16:37 PM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1740464197348</BspGeneratedUnixTimeStamp>
+        <BspGeneratedLocation>C:\Users\Nimit\pacemaker\COMPSYS303\Pacemaker\software\pacemaker_bsp</BspGeneratedLocation>
         <BspSettingsFile>.\settings.bsp</BspSettingsFile>
-        <SopcDesignFile>C:\Users\Nimit\Desktop\COMPSYS303\Lab1\nios2_system.sopcinfo</SopcDesignFile>
+        <SopcDesignFile>..\..\nios2_system.sopcinfo</SopcDesignFile>
         <JdiFile>default</JdiFile>
         <Cpu>cpu</Cpu>
         <SchemaVersion>1.9</SchemaVersion>
@@ -922,12 +922,6 @@
                 <Enabled>false</Enabled>
                 <Group xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
         </Setting>
-        <MemoryMap>
-                <slaveDescriptor>sysid</slaveDescriptor>
-                <addressRange>0x00000000 - 0x00000007</addressRange>
-                <addressSpan>8</addressSpan>
-                <attributes/>
-        </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>sdram</slaveDescriptor>
                 <addressRange>0x00800000 - 0x00FFFFFF</addressRange>

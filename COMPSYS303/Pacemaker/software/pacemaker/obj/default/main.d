@@ -1,19 +1,28 @@
-obj/default/main.o: main.c \
- C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/system.h \
- C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/linker.h \
- c:\users\nimit\desktop\compsys303\pacemaker\software\pacemaker_bsp\drivers\inc\altera_avalon_pio_regs.h \
- c:\users\nimit\desktop\compsys303\pacemaker\software\pacemaker_bsp\hal\inc\io.h \
- c:\users\nimit\desktop\compsys303\pacemaker\software\pacemaker_bsp\hal\inc\alt_types.h \
- sccharts.h
+obj/default/main.o: main.c ../pacemaker_bsp/system.h \
+ ../pacemaker_bsp/linker.h \
+ ../pacemaker_bsp//drivers/inc/altera_avalon_pio_regs.h \
+ ../pacemaker_bsp//HAL/inc/io.h ../pacemaker_bsp//HAL/inc/alt_types.h \
+ sccharts.h ../pacemaker_bsp//HAL/inc/sys/alt_alarm.h \
+ ../pacemaker_bsp//HAL/inc/sys/alt_llist.h \
+ ../pacemaker_bsp//HAL/inc/alt_types.h \
+ ../pacemaker_bsp//HAL/inc/priv/alt_alarm.h
 
-C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/system.h:
+../pacemaker_bsp/system.h:
 
-C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/linker.h:
+../pacemaker_bsp/linker.h:
 
-c:\users\nimit\desktop\compsys303\pacemaker\software\pacemaker_bsp\drivers\inc\altera_avalon_pio_regs.h:
+../pacemaker_bsp//drivers/inc/altera_avalon_pio_regs.h:
 
-c:\users\nimit\desktop\compsys303\pacemaker\software\pacemaker_bsp\hal\inc\io.h:
+../pacemaker_bsp//HAL/inc/io.h:
 
-c:\users\nimit\desktop\compsys303\pacemaker\software\pacemaker_bsp\hal\inc\alt_types.h:
+../pacemaker_bsp//HAL/inc/alt_types.h:
 
 sccharts.h:
+
+../pacemaker_bsp//HAL/inc/sys/alt_alarm.h:
+
+../pacemaker_bsp//HAL/inc/sys/alt_llist.h:
+
+../pacemaker_bsp//HAL/inc/alt_types.h:
+
+../pacemaker_bsp//HAL/inc/priv/alt_alarm.h:

@@ -2,9 +2,9 @@
  * system.h - SOPC Builder system and BSP software package information
  *
  * Machine generated for CPU 'cpu' in SOPC Builder design 'nios2_system'
- * SOPC Builder design path: C:/Users/Nimit/Desktop/COMPSYS303/Lab1/nios2_system.sopcinfo
+ * SOPC Builder design path: ../../nios2_system.sopcinfo
  *
- * Generated: Wed Feb 19 18:51:35 NZDT 2025
+ * Generated: Tue Feb 25 19:16:37 NZDT 2025
  */
 
 /*
@@ -146,7 +146,6 @@
 #define __ALTERA_AVALON_NEW_SDRAM_CONTROLLER
 #define __ALTERA_AVALON_ONCHIP_MEMORY2
 #define __ALTERA_AVALON_PIO
-#define __ALTERA_AVALON_SYSID_QSYS
 #define __ALTERA_AVALON_TIMER
 #define __ALTERA_AVALON_UART
 #define __ALTERA_NIOS2_GEN2
@@ -405,22 +404,6 @@
 #define SWITCHES_RESET_VALUE 0
 #define SWITCHES_SPAN 16
 #define SWITCHES_TYPE "altera_avalon_pio"
-
-
-/*
- * sysid configuration
- *
- */
-
-#define ALT_MODULE_CLASS_sysid altera_avalon_sysid_qsys
-#define SYSID_BASE 0x0
-#define SYSID_ID 0
-#define SYSID_IRQ -1
-#define SYSID_IRQ_INTERRUPT_CONTROLLER_ID -1
-#define SYSID_NAME "/dev/sysid"
-#define SYSID_SPAN 8
-#define SYSID_TIMESTAMP 1739053853
-#define SYSID_TYPE "altera_avalon_sysid_qsys"
 
 
 /*

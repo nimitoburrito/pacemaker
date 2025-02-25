@@ -3,8 +3,8 @@
 # This script creates the hello_world application in this directory.
 
 
-BSP_DIR=C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/
-QUARTUS_PROJECT_DIR=C:/Users/Nimit/Desktop/COMPSYS303/Lab1/
+BSP_DIR=../pacemaker_bsp
+QUARTUS_PROJECT_DIR=../../
 NIOS2_APP_GEN_ARGS="--elf-name pacemaker.elf --set OBJDUMP_INCLUDE_SOURCE 1 --src-files hello_world.c"
 
 

@@ -142,8 +142,8 @@ ACDS_VERSION := 18.1
 ELF := pacemaker.elf
 
 # Paths to C, C++, and assembly source files.
-C_SRCS += main.c
 C_SRCS += sccharts.c
+C_SRCS += main.c
 CXX_SRCS :=
 ASM_SRCS :=
 
@@ -178,7 +178,7 @@ CRT0 :=
 SYS_LIB :=
 
 # Define path to the root of the BSP.
-BSP_ROOT_DIR := C:/Users/Nimit/Desktop/COMPSYS303/Pacemaker/software/pacemaker_bsp/
+BSP_ROOT_DIR := ../pacemaker_bsp/
 
 # List of application specific include directories, library directories and library names
 APP_INCLUDE_DIRS :=
@@ -189,7 +189,7 @@ APP_LIBRARY_NAMES :=
 BUILD_PRE_PROCESS :=
 BUILD_POST_PROCESS :=
 
-QUARTUS_PROJECT_DIR := C:/Users/Nimit/Desktop/COMPSYS303/Lab1/
+QUARTUS_PROJECT_DIR := ../../
 
 
 #END GENERATED

@@ -9,9 +9,8 @@ obj/alt_sys_init.o: alt_sys_init.c system.h linker.h \
  HAL/inc/sys/alt_llist.h HAL/inc/priv/alt_dev_llist.h \
  drivers/inc/altera_avalon_lcd_16207.h \
  drivers/inc/altera_avalon_lcd_16207_fd.h \
- drivers/inc/altera_avalon_sysid_qsys.h drivers/inc/altera_avalon_timer.h \
- drivers/inc/altera_avalon_uart.h HAL/inc/sys/termios.h \
- drivers/inc/altera_avalon_uart_fd.h
+ drivers/inc/altera_avalon_timer.h drivers/inc/altera_avalon_uart.h \
+ HAL/inc/sys/termios.h drivers/inc/altera_avalon_uart_fd.h
 
 system.h:
 
@@ -56,8 +55,6 @@ HAL/inc/priv/alt_dev_llist.h:
 drivers/inc/altera_avalon_lcd_16207.h:
 
 drivers/inc/altera_avalon_lcd_16207_fd.h:
-
-drivers/inc/altera_avalon_sysid_qsys.h:
 
 drivers/inc/altera_avalon_timer.h:
 

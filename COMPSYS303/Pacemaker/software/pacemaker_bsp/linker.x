@@ -2,9 +2,9 @@
  * linker.x - Linker script
  *
  * Machine generated for CPU 'cpu' in SOPC Builder design 'nios2_system'
- * SOPC Builder design path: C:/Users/Nimit/Desktop/COMPSYS303/Lab1/nios2_system.sopcinfo
+ * SOPC Builder design path: ../../nios2_system.sopcinfo
  *
- * Generated: Wed Feb 19 18:51:35 NZDT 2025
+ * Generated: Tue Feb 25 19:16:37 NZDT 2025
  */
 
 /*

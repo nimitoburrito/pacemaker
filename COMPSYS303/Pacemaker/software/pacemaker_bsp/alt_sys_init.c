@@ -2,9 +2,9 @@
  * alt_sys_init.c - HAL initialization source
  *
  * Machine generated for CPU 'cpu' in SOPC Builder design 'nios2_system'
- * SOPC Builder design path: C:/Users/Nimit/Desktop/COMPSYS303/Lab1/nios2_system.sopcinfo
+ * SOPC Builder design path: ../../nios2_system.sopcinfo
  *
- * Generated: Wed Feb 19 18:51:35 NZDT 2025
+ * Generated: Tue Feb 25 19:16:37 NZDT 2025
  */
 
 /*
@@ -61,7 +61,6 @@
 #include "altera_nios2_gen2_irq.h"
 #include "altera_avalon_jtag_uart.h"
 #include "altera_avalon_lcd_16207.h"
-#include "altera_avalon_sysid_qsys.h"
 #include "altera_avalon_timer.h"
 #include "altera_avalon_uart.h"
 
@@ -72,7 +71,6 @@
 ALTERA_NIOS2_GEN2_IRQ_INSTANCE ( CPU, cpu);
 ALTERA_AVALON_JTAG_UART_INSTANCE ( JTAG_UART, jtag_uart);
 ALTERA_AVALON_LCD_16207_INSTANCE ( LCD, lcd);
-ALTERA_AVALON_SYSID_QSYS_INSTANCE ( SYSID, sysid);
 ALTERA_AVALON_TIMER_INSTANCE ( TIMER_0, timer_0);
 ALTERA_AVALON_TIMER_INSTANCE ( TIMER_1, timer_1);
 ALTERA_AVALON_UART_INSTANCE ( UART, uart);
@@ -102,6 +100,5 @@ void alt_sys_init( void )
     ALTERA_AVALON_TIMER_INIT ( TIMER_1, timer_1);
     ALTERA_AVALON_JTAG_UART_INIT ( JTAG_UART, jtag_uart);
     ALTERA_AVALON_LCD_16207_INIT ( LCD, lcd);
-    ALTERA_AVALON_SYSID_QSYS_INIT ( SYSID, sysid);
     ALTERA_AVALON_UART_INIT ( UART, uart);
 }

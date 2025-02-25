@@ -86,7 +86,7 @@ ACDS_VERSION := 18.1
 
 # Qsys--generated SOPCINFO file. Required for resolving node instance ID's with 
 # design component names. 
-SOPCINFO_FILE := C:/Users/Nimit/Desktop/COMPSYS303/Lab1/nios2_system.sopcinfo
+SOPCINFO_FILE := $(ABS_BSP_ROOT_DIR)/../../nios2_system.sopcinfo
 
 # Big-Endian operation. 
 # setting BIG_ENDIAN is false
@@ -145,21 +145,6 @@ SOPC_NAME := nios2_system
 # SopcBuilder Simulation Enabled 
 # setting SOPC_SIMULATION_ENABLED is false
 ELF_PATCH_FLAG  += --simulation_enabled false
-
-# The SOPC System ID 
-# setting SOPC_SYSID is 0
-SOPC_SYSID_FLAG += --id=0
-ELF_PATCH_FLAG  += --id 0
-
-# The SOPC System ID Base Address 
-# setting SOPC_SYSID_BASE_ADDRESS is 0x0
-SOPC_SYSID_FLAG += --sidp=0x0
-ELF_PATCH_FLAG  += --sidp 0x0
-
-# The SOPC Timestamp 
-# setting SOPC_TIMESTAMP is 1739053853
-SOPC_SYSID_FLAG += --timestamp=1739053853
-ELF_PATCH_FLAG  += --timestamp 1739053853
 
 # Enable JTAG UART driver to recover when host is inactive causing buffer to 
 # full without returning error. Printf will not fail with this recovery. none 
