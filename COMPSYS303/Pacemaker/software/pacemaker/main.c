@@ -5,16 +5,14 @@
 #include "sccharts.h"
 #include "sys/alt_alarm.h"
 
-uint32_t led_reset = 0x00;
-
-
+// System time ISR
 alt_u32 timerISR(void* context) {
     int* timecount = (int*)context;
     (*timecount)++;
     return 1;
 }
 
-
+// Reset all signals at end of each tick in SCCharts
 void resetHeartEvents(TickData* d) {
 
     d->AS = 0;
@@ -25,10 +23,11 @@ void resetHeartEvents(TickData* d) {
 
 int main() {
 
+	// Variable declarations
     alt_alarm ticker;
     uint64_t systemTime = 0;
     uint64_t prevTime = 0;
-
+    uint32_t led_reset = 0x00;
     uint8_t reset_button = 0;
 
     // Create the struct
@@ -39,41 +38,41 @@ int main() {
     reset(&data);
     tick(&data);
 
+    // Initialize the system time
     void* timerContext = (void*)&systemTime;
     alt_alarm_start(&ticker, 1, timerISR, timerContext);
 
-
+    // Reset leds when starting
     IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
 
     while (1) {
 
+    	// Set reset variable when reset button press is detected
         if (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 2)) {
             reset_button = 1;
         }
 
+        // If reset is active reset leds and wait for heart sense input again
         if (reset_button) {
             IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
             if ((~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 1)) ||
                 (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 0))) {
                 reset_button = 0;
             }
-            continue;
+            continue; // skip rest of the loop until input is detected
         }
 
         // Fetch button inputs (active low, so invert the bits)
         data.AS = (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 1)) ? 1 : 0;
         data.VS = (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 0)) ? 1 : 0;
 
-        if ((~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 2))) {
-            reset_button = 1;
-        }
-
+        // Move ticker along
         data.deltaT = systemTime - prevTime;
         prevTime = systemTime;
 
         tick(&data);
 
-        // LED control with visibility extension
+        // LED output based on AP and VP
         uint32_t led_output = 0x00;
         if (data.VP) {
             led_output |= 0x01; // VP -> LED 0
