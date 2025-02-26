@@ -3,14 +3,72 @@
 #include <altera_avalon_pio_regs.h>
 #include <stdio.h>
 #include "sccharts.h"
+#include "timing.h"
 #include "sys/alt_alarm.h"
+#include <sys/alt_irq.h>
+#include "altera_avalon_uart_regs.h"
+#include "altera_avalon_uart.h"
+
+#define BAUD_RATE 115200
+
+volatile uint8_t AS_input;
+volatile uint8_t VS_input;
+
+volatile uint8_t AP_output;
+volatile uint8_t VP_output;
+
+volatile uint8_t URI_state = 0;
+volatile uint8_t URI_timeout = 0;
+
+volatile uint8_t PVARP_state = 0;
+volatile uint8_t PVARP_timeout = 0;
+
+volatile uint8_t VRP_state = 0;
+volatile uint8_t VRP_timeout = 0;
+
+volatile uint8_t AVI_state = 0;
+volatile uint8_t AEI_state = 0;
+
+volatile int LRI_timer, URI_timer, PVARP_timer, VRP_timer, AVI_timer, AEI_timer = 0;
 
 // System time ISR
 alt_u32 timerISR(void* context) {
     int* timecount = (int*)context;
     (*timecount)++;
+
+    LRI_timer++;
+    URI_timer++;
+    PVARP_timer++;
+    VRP_timer++;
+    AVI_timer++;
+    AEI_timer++;
+
     return 1;
 }
+
+void uart_isr() {
+	 if (IORD_ALTERA_AVALON_UART_STATUS(UART_BASE) & ALTERA_AVALON_UART_STATUS_RRDY_MSK) {
+		 char received = IORD_ALTERA_AVALON_UART_RXDATA(UART_BASE);
+		 if (received == 'A') {
+			 AS_input = 1;
+		 } else if (received == 'V') {
+			 VS_input = 1;
+		 }
+	 }
+}
+
+void uart_init() { // register the UART
+    IOWR_ALTERA_AVALON_UART_CONTROL(UART_BASE,0);
+    IOWR_ALTERA_AVALON_UART_CONTROL(UART_BASE, ALTERA_AVALON_UART_CONTROL_RRDY_MSK);
+    alt_ic_isr_register(UART_IRQ_INTERRUPT_CONTROLLER_ID, UART_IRQ, uart_isr, NULL, NULL);
+    IOWR_ALTERA_AVALON_UART_CONTROL(UART_BASE, ALTERA_AVALON_UART_CONTROL_RRDY_MSK);
+}
+
+void send_uart(char c) {
+	 while (!(IORD_ALTERA_AVALON_UART_STATUS(UART_BASE) & ALTERA_AVALON_UART_STATUS_TRDY_MSK));
+	 IOWR_ALTERA_AVALON_UART_TXDATA(UART_BASE, c);
+}
+
 
 // Reset all signals at end of each tick in SCCharts
 void resetHeartEvents(TickData* d) {
@@ -21,6 +79,97 @@ void resetHeartEvents(TickData* d) {
     d->VP = 0;
 }
 
+void c_implementation() {
+
+	// LRI
+	if ((LRI_timer < LRI_VALUE) && (VS_input || VP_output)) {
+
+		LRI_timer = 0;
+
+	} else if (LRI_timer >= LRI_VALUE) {
+
+		VP_output = 1;
+		LRI_timer = 0;
+	}
+
+	//URI
+	if (URI_state == 0) {
+		if (VS_input || VP_output) {
+			URI_timer = 0;
+			URI_state = 1;
+		}
+	} else {
+		if (URI_timer < URI_VALUE) {
+			URI_timeout = 1;
+		} else {
+			URI_timeout = 0;
+			URI_state = 0;
+		}
+	}
+
+	// PVARP
+	if (PVARP_state == 0) {
+		if (VS_input || VP_output) {
+			PVARP_timer = 0;
+			PVARP_state = 1;
+		}
+	} else {
+		if (PVARP_timer < URI_VALUE) {
+			PVARP_timeout = 1;
+		} else {
+			PVARP_timeout = 0;
+			PVARP_state = 0;
+		}
+	}
+
+	// VRP
+	if (VRP_state == 0) {
+		if (VS_input || VP_output) {
+			VRP_timer = 0;
+			VRP_state = 1;
+		}
+	} else {
+		if (VRP_timer < URI_VALUE) {
+			VRP_timeout = 1;
+		} else {
+			VRP_timeout = 0;
+			VRP_state = 0;
+		}
+	}
+
+	// AVI
+	if (AVI_state == 0) {
+		if ((AS_input || AP_output) && (!PVARP_timeout)) {
+			AVI_timer = 0;
+			AVI_state = 1;
+		}
+	} else {
+		if (VS_input) {
+			AVI_state = 0;
+		} else if ((AVI_timer >= AVI_VALUE) && !URI_timeout) {
+			VP_output = 1;
+			AVI_state = 0;
+		}
+	}
+
+	// AEI
+	if (AEI_state == 0) {
+		if ((VS_input || VP_output) && (!VRP_timeout)) {
+			AEI_timer = 0;
+			AEI_state = 1;
+		}
+	} else {
+		if (AS_input) {
+			AEI_state = 0;
+		} else if (AEI_timer >= AEI_VALUE) {
+			AP_output = 1;
+			AEI_state = 0;
+		}
+	}
+}
+
+
+
 int main() {
 
 	// Variable declarations
@@ -29,6 +178,7 @@ int main() {
     uint64_t prevTime = 0;
     uint32_t led_reset = 0x00;
     uint8_t reset_button = 0;
+
 
     // Create the struct
     TickData data;
@@ -47,49 +197,96 @@ int main() {
 
     while (1) {
 
-    	// Set reset variable when reset button press is detected
-        if (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 2)) {
-            reset_button = 1;
-        }
+    	// read switches
+    	uint8_t mode = (IORD_ALTERA_AVALON_PIO_DATA(SWITCHES_BASE) & (1 << 0)) ? 1 : 0;
+    	uint8_t implementation = (IORD_ALTERA_AVALON_PIO_DATA(SWITCHES_BASE) & (1 << 1)) ? 1 : 0;
 
-        // If reset is active reset leds and wait for heart sense input again
-        if (reset_button) {
-            IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
-            if ((~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 1)) ||
-                (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 0))) {
-                reset_button = 0;
-            }
-            continue; // skip rest of the loop until input is detected
-        }
+    	if (mode == 0) {
 
-        // Fetch button inputs (active low, so invert the bits)
-        data.AS = (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 1)) ? 1 : 0;
-        data.VS = (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 0)) ? 1 : 0;
+    		// Set reset variable when reset button press is detected
+    		if (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 2)) {
+    			reset_button = 1;
+    		}
 
-        // Move ticker along
-        data.deltaT = systemTime - prevTime;
-        prevTime = systemTime;
+    		// If reset is active reset leds and wait for heart sense input again
+    		if (reset_button) {
+    			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
+    			if ((~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 1)) ||
+    					(~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 0))) {
+    				reset_button = 0;
+    			}
+    			continue; // skip rest of the loop until input is detected
+    		}
 
-        tick(&data);
+    		// Fetch button inputs (active low, so invert the bits)
+    		AS_input = (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 1)) ? 1 : 0;
+    		VS_input = (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 0)) ? 1 : 0;
 
-        // LED output based on AP and VP
-        uint32_t led_output = 0x00;
-        if (data.VP) {
-            led_output |= 0x01; // VP -> LED 0
-        }
-        if (data.AP) {
-            led_output |= 0x04; // AP -> LED 2
-        }
-        IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_output);
+    	}
 
-        // Short delay to make LED flashes visible
-        for (volatile int i = 0; i < 100000; i++);
+    	if(implementation == 0) {
 
-        // Reset leds
-        IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
+    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
 
-        // Print the state to console
-        printf("AS: %d, VS: %d, AP: %d, VP: %d\n", data.AS, data.VS, data.AP, data.VP);
+    		data.AS = AS_input;
+    		data.VS = VS_input;
+
+        	// Move ticker along
+    		data.deltaT = systemTime - prevTime;
+    		prevTime = systemTime;
+    		tick(&data);
+
+    		// LED output based on AP and VP
+    		uint32_t led_output = 0x00;
+    		if (data.VP) {
+    			led_output |= 0x01;
+    			send_uart('V'); // VP -> LED 0
+    		}
+    		if (data.AP) {
+    			led_output |= 0x04;
+    			send_uart('A'); // AP -> LED 2
+    		}
+    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_output);
+
+    		// Short delay to make LED flashes visible
+    		for (volatile int i = 0; i < 100000; i++);
+
+    		// Reset leds
+    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
+
+    		 // Print the state to console
+    		 printf("SCCHART - AS: %d, VS: %d, AP: %d, VP: %d\n", data.AS, data.VS, data.AP, data.VP);
+
+    	}
+
+    	else {
+    		c_implementation();
+    		// LED output based on AP and VP
+    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
+    		printf("C - AS: %d, VS: %d, AP: %d, VP: %d\n", AS_input, VS_input, AP_output, VP_output);
+
+    		uint32_t led_output = 0x00;
+    		if (VP_output) {
+				led_output |= 0x01;
+				send_uart('V');
+				VP_output = 0;// VP -> LED 0
+			}
+			if (AP_output) {
+				led_output |= 0x04;
+				send_uart('A');
+				AP_output = 0;// AP -> LED 2
+			}
+			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_output);
+
+			// Short delay to make LED flashes visible
+			for (volatile int i = 0; i < 100000; i++);
+
+			// Reset leds
+			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
+    	}
+
+    	AS_input = 0;
+    	VS_input = 0;
     }
 
     return 0;
