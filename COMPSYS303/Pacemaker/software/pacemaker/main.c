@@ -86,11 +86,9 @@ void c_implementation() {
 
 	// LRI
 	if ((LRI_timer < LRI_VALUE) && (VS_input || VP_output)) {
-
 		LRI_timer = 0;
 
 	} else if (LRI_timer >= LRI_VALUE) {
-
 		VP_output = 1;
 		LRI_timer = 0;
 	}
@@ -209,7 +207,7 @@ int main() {
 
     	if (mode == 0) {
 
-    		rled_output &= 0x02;
+    		rled_output = (rled_output & ~0x01) | 0x02;
     		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, rled_output);
 
     		// Set reset variable when reset button press is detected
@@ -247,7 +245,7 @@ int main() {
 
     	if(implementation == 0) {
 
-    		rled_output &= 0x01;
+    		rled_output = (rled_output & ~0x02);
 			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, rled_output);
     		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
 
