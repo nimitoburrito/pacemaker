@@ -14,6 +14,9 @@
 volatile uint8_t AS_input;
 volatile uint8_t VS_input;
 
+volatile uint8_t AS_temp;
+volatile uint8_t VS_temp;
+
 volatile uint8_t AP_output;
 volatile uint8_t VP_output;
 
@@ -50,9 +53,9 @@ void uart_isr() {
 	 if (IORD_ALTERA_AVALON_UART_STATUS(UART_BASE) & ALTERA_AVALON_UART_STATUS_RRDY_MSK) {
 		 char received = IORD_ALTERA_AVALON_UART_RXDATA(UART_BASE);
 		 if (received == 'A') {
-			 AS_input = 1;
+			 AS_temp = 1;
 		 } else if (received == 'V') {
-			 VS_input = 1;
+			 VS_temp = 1;
 		 }
 	 }
 }
@@ -179,6 +182,7 @@ int main() {
     uint32_t led_reset = 0x00;
     uint8_t reset_button = 0;
 
+    uint8_t rled_output = 0x00;
 
     // Create the struct
     TickData data;
@@ -187,6 +191,8 @@ int main() {
     resetHeartEvents(&data);
     reset(&data);
     tick(&data);
+
+    uart_init();
 
     // Initialize the system time
     void* timerContext = (void*)&systemTime;
@@ -202,6 +208,9 @@ int main() {
     	uint8_t implementation = (IORD_ALTERA_AVALON_PIO_DATA(SWITCHES_BASE) & (1 << 1)) ? 1 : 0;
 
     	if (mode == 0) {
+
+    		rled_output &= 0x02;
+    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, rled_output);
 
     		// Set reset variable when reset button press is detected
     		if (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 2)) {
@@ -224,8 +233,22 @@ int main() {
 
     	}
 
+    	else {
+
+				rled_output |= 0x01;
+				IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, rled_output);
+
+				AS_input = AS_temp;
+				VS_input = VS_temp;
+
+				AS_temp = 0;
+				VS_temp = 0;
+    	    	}
+
     	if(implementation == 0) {
 
+    		rled_output &= 0x01;
+			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, rled_output);
     		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
 
     		data.AS = AS_input;
@@ -237,16 +260,16 @@ int main() {
     		tick(&data);
 
     		// LED output based on AP and VP
-    		uint32_t led_output = 0x00;
+    		uint32_t gled_output = 0x00;
     		if (data.VP) {
-    			led_output |= 0x01;
+    			gled_output |= 0x01;
     			send_uart('V'); // VP -> LED 0
     		}
     		if (data.AP) {
-    			led_output |= 0x04;
+    			gled_output |= 0x04;
     			send_uart('A'); // AP -> LED 2
     		}
-    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_output);
+    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, gled_output);
 
     		// Short delay to make LED flashes visible
     		for (volatile int i = 0; i < 100000; i++);
@@ -262,21 +285,24 @@ int main() {
     	else {
     		c_implementation();
     		// LED output based on AP and VP
+
+    		rled_output |= 0x02;
+			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, rled_output);
     		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
     		printf("C - AS: %d, VS: %d, AP: %d, VP: %d\n", AS_input, VS_input, AP_output, VP_output);
 
-    		uint32_t led_output = 0x00;
+    		uint32_t gled_output = 0x00;
     		if (VP_output) {
-				led_output |= 0x01;
+				gled_output |= 0x01;
 				send_uart('V');
 				VP_output = 0;// VP -> LED 0
 			}
 			if (AP_output) {
-				led_output |= 0x04;
+				gled_output |= 0x04;
 				send_uart('A');
 				AP_output = 0;// AP -> LED 2
 			}
-			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_output);
+			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, gled_output);
 
 			// Short delay to make LED flashes visible
 			for (volatile int i = 0; i < 100000; i++);
