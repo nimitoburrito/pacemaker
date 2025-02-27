@@ -180,6 +180,8 @@ int main() {
     uint32_t led_reset = 0x00;
     uint8_t reset_button = 0;
 
+    unsigned int uiSwitchValue = 0;
+
     uint8_t rled_output = 0x00;
 
     // Create the struct
@@ -205,10 +207,10 @@ int main() {
     	uint8_t mode = (IORD_ALTERA_AVALON_PIO_DATA(SWITCHES_BASE) & (1 << 0)) ? 1 : 0;
     	uint8_t implementation = (IORD_ALTERA_AVALON_PIO_DATA(SWITCHES_BASE) & (1 << 1)) ? 1 : 0;
 
-    	if (mode == 0) {
+//    	uiSwitchValue = IORD_ALTERA_AVALON_PIO_DATA(SWITCHES_BASE);
+//    	IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, uiSwitchValue);
 
-    		rled_output = (rled_output & ~0x01) | 0x02;
-    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, rled_output);
+    	if (mode == 0) {
 
     		// Set reset variable when reset button press is detected
     		if (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 2)) {
@@ -218,12 +220,17 @@ int main() {
     		// If reset is active reset leds and wait for heart sense input again
     		if (reset_button) {
     			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, led_reset);
+    			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, 0x08);
     			if ((~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 1)) ||
-    					(~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 0))) {
+    				(~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 0))) {
     				reset_button = 0;
+    				IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, led_reset);
     			}
     			continue; // skip rest of the loop until input is detected
     		}
+
+    		rled_output = (rled_output & ~0x01) | 0x02;
+    		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_RED_BASE, rled_output);
 
     		// Fetch button inputs (active low, so invert the bits)
     		AS_input = (~IORD_ALTERA_AVALON_PIO_DATA(KEYS_BASE) & (1 << 1)) ? 1 : 0;
