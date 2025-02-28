@@ -20,6 +20,8 @@ volatile uint8_t VS_temp;
 volatile uint8_t AP_output;
 volatile uint8_t VP_output;
 
+volatile uint8_t LRI_state = 0;
+
 volatile uint8_t URI_state = 0;
 volatile uint8_t URI_timeout = 0;
 
@@ -85,15 +87,23 @@ void resetHeartEvents(TickData* d) {
 void c_implementation() {
 
 	// LRI
-	if ((LRI_timer < LRI_VALUE) && (VS_input || VP_output)) {
-		LRI_timer = 0;
+	if (LRI_state == 0) {
+		if (VS_input || VP_output) {
+			LRI_state = 1;
+			LRI_timer = 0;
+		}
+	} else {
+		if ((LRI_timer < LRI_VALUE) && (VS_input || VP_output)) {
+			LRI_timer = 0;
 
-	} else if (LRI_timer >= LRI_VALUE) {
-		VP_output = 1;
-		LRI_timer = 0;
+		} else if (LRI_timer >= LRI_VALUE) {
+			VP_output = 1;
+			LRI_timer = 0;
+		}
 	}
 
 	//URI
+
 	if (URI_state == 0) {
 		if (VS_input || VP_output) {
 			URI_timer = 0;
@@ -109,6 +119,7 @@ void c_implementation() {
 	}
 
 	// PVARP
+
 	if (PVARP_state == 0) {
 		if (VS_input || VP_output) {
 			PVARP_timer = 0;
@@ -124,6 +135,7 @@ void c_implementation() {
 	}
 
 	// VRP
+
 	if (VRP_state == 0) {
 		if (VS_input || VP_output) {
 			VRP_timer = 0;
@@ -139,6 +151,7 @@ void c_implementation() {
 	}
 
 	// AVI
+
 	if (AVI_state == 0) {
 		if ((AS_input || AP_output) && (!PVARP_timeout)) {
 			AVI_timer = 0;
@@ -154,6 +167,7 @@ void c_implementation() {
 	}
 
 	// AEI
+
 	if (AEI_state == 0) {
 		if ((VS_input || VP_output) && (!VRP_timeout)) {
 			AEI_timer = 0;
@@ -169,8 +183,6 @@ void c_implementation() {
 	}
 }
 
-
-
 int main() {
 
 	// Variable declarations
@@ -180,7 +192,7 @@ int main() {
     uint32_t led_reset = 0x00;
     uint8_t reset_button = 0;
 
-    unsigned int uiSwitchValue = 0;
+//    unsigned int uiSwitchValue = 0;
 
     uint8_t rled_output = 0x00;
 

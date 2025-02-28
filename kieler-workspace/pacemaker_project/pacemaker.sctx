@@ -69,7 +69,7 @@ scchart Pacemaker{
         if pre(v_event) go to idle
         if x >= AVI go to uri_wait
         
-        state uri_wait
+      state uri_wait
         immediate if !URI_timeout do VP go to idle
     }
   
