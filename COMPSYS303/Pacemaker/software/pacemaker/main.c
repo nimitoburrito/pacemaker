@@ -99,10 +99,10 @@ void c_implementation() {
 			LRI_timer = 0;
 		}
 	} else {
-		if ((LRI_timer < LRI_VALUE) && (VS_input || VP_output)) {
+		if ((VS_input || VP_output)) {
 			LRI_timer = 0; // Reset LRI timer on VS or VP
-
-		} else if (LRI_timer >= LRI_VALUE) { // Trigger ventricular pacing (VP) if LRI expires
+		}
+		if (LRI_timer >= LRI_VALUE) { // Trigger ventricular pacing (VP) if LRI expires
 			VP_output = 1;
 			LRI_timer = 0;
 		}
@@ -132,7 +132,7 @@ void c_implementation() {
 			PVARP_state = 1;
 		}
 	} else {
-		if (PVARP_timer < URI_VALUE) {
+		if (PVARP_timer < PVARP_VALUE) {
 			PVARP_timeout = 1;  // outputs a signal that inhibits atrial sensing
 		} else {
 			PVARP_timeout = 0; // Allow atrial sensing again
@@ -148,7 +148,7 @@ void c_implementation() {
 			VRP_state = 1;
 		}
 	} else {
-		if (VRP_timer < URI_VALUE) {
+		if (VRP_timer < VRP_VALUE) {
 			VRP_timeout = 1; // outputs a signal that inhibits ventricular sensing
 		} else {
 			VRP_timeout = 0; // Allow ventricular sensing again
@@ -286,12 +286,12 @@ int main() {
     		// LED output based on AP and VP
     		uint32_t gled_output = 0x00;
     		if (data.VP) {
-    			gled_output |= 0x01;
-    			send_uart('V'); // VP -> LED 0
+    			gled_output |= 0x01; // VP -> LED 0
+    			send_uart('V');
     		}
     		if (data.AP) {
-    			gled_output |= 0x04;
-    			send_uart('A'); // AP -> LED 2
+    			gled_output |= 0x04; // AP -> LED 2
+    			send_uart('A');
     		}
     		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, gled_output);
 
@@ -308,6 +308,7 @@ int main() {
 
     	else {
     		c_implementation();
+    		c_implementation();
 
     		// set switch led to output when on
     		rled_output |= 0x02;
@@ -322,14 +323,14 @@ int main() {
     		// LED output based on AP and VP
     		uint32_t gled_output = 0x00;
     		if (VP_output) {
-				gled_output |= 0x01;
+				gled_output |= 0x01; // VP -> LED 0
 				send_uart('V');
-				VP_output = 0;// VP -> LED 0
+				VP_output = 0;
 			}
 			if (AP_output) {
-				gled_output |= 0x04;
+				gled_output |= 0x04; // AP -> LED 2
 				send_uart('A');
-				AP_output = 0;// AP -> LED 2
+				AP_output = 0;
 			}
 			IOWR_ALTERA_AVALON_PIO_DATA(LEDS_GREEN_BASE, gled_output);
 
